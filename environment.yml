@@ -1,0 +1,10 @@
+name: gpu-logger
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9
+  - fire=0.4.0
+  - pydantic=1.8.2
+  - py3nvml=0.2.5
+prefix: ~/miniconda3/envs/gpu-logger
