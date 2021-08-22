@@ -2,9 +2,9 @@
 Log gpu usage statistics at regular intervals
 Adapted from: https://github.com/fbcotter/py3nvml/blob/0.2.5/scripts/py3smi
 """
-
 import os
 import pwd
+import time
 from subprocess import Popen, PIPE
 from typing import List
 
@@ -118,17 +118,46 @@ class NvmlContext:
         nvmlShutdown()
 
 
-def main(folder_out: str, interval: int):
+def test_context():
     with NvmlContext() as c:
-        devices = [get_device(i) for i in range(c.num_gpus)]
-        procs = [p for d in devices for p in get_processes(d)]
+        print(dict(num_gpus=c.num_gpus))
 
-    for d in devices:
-        print(d.json(indent=2))
 
-    for p in procs:
-        print(p.json(indent=2))
+def test_get_device():
+    with NvmlContext() as c:
+        for i in range(c.num_gpus):
+            device = get_device(i)
+            print(device.json(indent=2))
+
+
+def test_get_process():
+    with NvmlContext() as c:
+        for i in range(c.num_gpus):
+            device = get_device(i)
+            for process in get_processes(device):
+                print(process.json(indent=2))
+
+
+class Record(BaseModel):
+    time: float
+    devices: List[Device]
+    processes: List[Process]
+
+
+def main(path_out: str, interval: int):
+    while True:
+        with NvmlContext() as c:
+            devices = [get_device(i) for i in range(c.num_gpus)]
+            record = Record(
+                time=time.time(),
+                devices=devices,
+                processes=[p for d in devices for p in get_processes(d)],
+            )
+
+            with open(path_out, "a") as f:
+                f.write(record.json() + "\n")
+        time.sleep(interval)
 
 
 if __name__ == "__main__":
-    Fire(main)
+    Fire()
