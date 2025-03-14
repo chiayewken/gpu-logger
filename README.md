@@ -3,17 +3,22 @@
 ## Install
 
 ```
-conda env create --file environment.yml
+conda create -n gpulog python=3.11 -y
+conda activate gpulog
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-Save record with interval of 1 hour:
+Save record with interval of 1 second and visualize for 1 gpu:
 
 ```
-conda activate gpu-logger
-python main.py main --path_out log.jsonl --interval 3600
+python main.py save_logs logs/gpu.jsonl --interval 1
+python main.py visualize_logs logs/gpu.jsonl --device 1
+# {'path': 'logs/gpu.png', 'device': 1, 'peak_memory': 20.885}
 ```
+
+![GPU Image](gpu.png)
 
 Example record:
 

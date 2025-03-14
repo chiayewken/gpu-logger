@@ -189,17 +189,20 @@ def save_logs(path_out: str, interval: int):
         time.sleep(interval)
 
 
-def visualize_logs(path: str, device: int, path_out: str):
+def visualize_logs(path: str, device: int):
     data = LogData.load(path)
     values = [record.get_device(device).mem_used for record in data.records]
     plt.plot(values)
+    path_out = Path(path).with_suffix(".png")
     plt.savefig(path_out)
+    print(dict(path=str(path_out), device=device, peak_memory=max(values)))
 
 
 """
-python main.py save_logs logs.jsonl --interval 1
-python main.py visualize_logs logs.jsonl --device 1 --path_out gpu_memory.png
+python main.py save_logs logs/gpu.jsonl --interval 1
+python main.py visualize_logs logs/gpu.jsonl --device 1
 """
+
 
 if __name__ == "__main__":
     Fire()
